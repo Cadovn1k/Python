@@ -1,0 +1,15 @@
+def rebus():
+    res = set()
+    for i in range(458,999):
+        sti = str(i)
+        set_i = set([sti[j] for j in range(len(sti))])
+        cur = str(i * i)
+        set_cur = set([cur[j] for j in range(len(cur))])
+        if len(set_i & set_cur) == 0 and len(set_cur) == 5 and len(cur) == 6 and cur[1] == cur[-1] and len(set_i) == 3:
+            res = res | set_i
+            res = res | set_cur
+            print('ура ' + sti)
+    return res
+
+res = rebus()
+print(res)
