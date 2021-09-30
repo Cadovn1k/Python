@@ -2,7 +2,7 @@ import numpy
 
 def fant():
     res = 0
-    for _ in range(200):
+    for _ in range(500):
         x = numpy.random.permutation(26)
         if any(i == x[i] for i in x):
             res = res + 1
