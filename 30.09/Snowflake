@@ -1,0 +1,2 @@
+n = int(input())
+snowflake = [[[print('*', end = ' ') if j != n - 1 else print('*')] if (i == j) or (n // 2 == i) or (n // 2 == j) or (n - j) == (i + 1) else [print('.', end = ' ') if j != n - 1 else print('.')] for j in range(n)] for i in range(n)]
