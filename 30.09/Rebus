@@ -1,6 +1,6 @@
 def rebus():
     res = set()
-    for i in range(458,999):
+    for i in range(100,999):
         sti = str(i)
         set_i = set([sti[j] for j in range(len(sti))])
         cur = str(i * i)
