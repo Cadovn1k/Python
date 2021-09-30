@@ -8,7 +8,6 @@ def rebus():
         if len(set_i & set_cur) == 0 and len(set_cur) == 5 and len(cur) == 6 and cur[1] == cur[-1] and len(set_i) == 3:
             res = res | set_i
             res = res | set_cur
-            print('ура ' + sti)
     return res
 
 res = rebus()
