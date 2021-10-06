@@ -2,7 +2,7 @@ import numpy
 
 def fant():
     res = 0
-    for _ in range(500):
+    for _ in range(5000):
         x = numpy.random.permutation(26)
         if any(i == x[i] for i in x):
             res = res + 1
@@ -10,4 +10,4 @@ def fant():
 
 res = fant()
 print(res)
-print(res / 500)
+print(res / 5000)
