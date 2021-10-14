@@ -1,0 +1,22 @@
+def diff(hw : dict):
+    x = 0
+    y = 0
+    for k, v in hw.items():
+        x += 2 * k * k
+        y += 2 * k * v
+    return y / x
+
+n = int(input())
+hw = {}
+for i in range(n):
+    height, weight = input().split()
+    hw[int(height)] = int(weight)
+    
+a = 0
+for k, v in hw.items():
+    a += v / k
+print(a / n)
+
+a = diff(hw)
+print(a)
+
