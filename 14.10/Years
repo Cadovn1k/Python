@@ -1,3 +1,5 @@
+print('Привет, пожалуйста, напиши сколько тебе лет : ')
 n = int(input())
-result = [[[print(n, end = " года") if n % 100 <= 4 and n % 100 != 0 else print(n, end = " лет")] if n % 100 != 1 else print(n, end = " год")] if n % 100 < 20 else
-          [[print(n, end = " года") if n % 10 <= 4 and n % 10 != 0 else print(n, end = " лет")] if n % 10 != 1 else print(n, end = " год")]]
+n = n + 2
+result = [print('Я думал тебе ' + str(n), end = ' лет') if n % 100 in [11,12,13,14] or n % 10 == 0 or (n % 10 > 4 and n % 10 <= 9) else
+          print('Я думал тебе ' + str(n), end = ' года') if n % 10 > 1 and n % 10 < 5 else print('Я думал тебе ' + str(n), end = ' год')]
