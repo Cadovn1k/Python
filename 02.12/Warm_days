@@ -1,0 +1,20 @@
+temp = [+9, +7, +4, +4, +4, +8, +5, +5, +5, +6, 0, 0, 0, +1, 0, -5, -4, -3, 0, 0, -1, -1, -2, -8, -7, -1, +4, +1, -1,
+        +1, +1]
+
+n = len(temp)
+print(n)
+days = [None] * n
+stack = []
+
+for i in range(n - 1, -1, -1):
+    if stack == []:
+        stack.append(i)
+    else:
+        while stack and temp[stack[-1]] <= temp[i]:
+            stack.pop()
+    if stack != []:
+        days[i] = stack[-1] - i
+    else:
+        days[i] = None
+stack.append(i)
+print(days)
