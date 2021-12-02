@@ -16,5 +16,5 @@ for i in range(n - 1, -1, -1):
         days[i] = stack[-1] - i
     else:
         days[i] = None
-stack.append(i)
+    stack.append(i)
 print(days)
