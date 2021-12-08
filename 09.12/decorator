@@ -1,0 +1,38 @@
+import time
+
+def time_of_function(f):
+    def g(*args):
+        # start_time = time.clock()
+        # value = f(*args)
+        # end_time = time.clock()
+        # print('Заняло времени : {time}'.format(time=end_time-start_time))
+        # return value
+        start_time = time.perf_counter_ns()
+        res = f(*args)
+        print("Заняло времени в наносекундах : %d" %(time.perf_counter_ns() - start_time))
+        return res
+    return g
+
+@time_of_function
+def celebrity(m, n):
+    i = 0
+    j = n - 1
+    candidate = -1
+    while (i < j):
+        if m[j][i] == 1:
+            j -= 1
+        else:
+            i += 1
+    candidate = i
+    for k in range(n):
+        if candidate != k:
+            if m[candidate][k] == 1 or m[k][candidate] == 0:
+                return -1
+    return candidate
+
+n = 4
+m = [[0, 0, 1, 0],
+     [0, 0, 1, 0],
+     [0, 0, 0, 0],
+     [0, 0, 1, 0]]
+print("Индекс знаменитости : " + str(celebrity(m, n)))
