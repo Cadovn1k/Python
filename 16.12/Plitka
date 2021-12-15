@@ -1,0 +1,24 @@
+import functools
+from functools import lru_cache
+
+
+@lru_cache
+def kolvo_sp_ul_pl(n: int):
+    """
+    Вычисляет количество способов которыми можно уложить дорожку длиной n (целое) (n!=0)  и шириной 3,
+    плиткой размера 2X1
+
+    :param n:int
+    :return:int
+    """
+    if n % 2 != 0:
+        return 0
+    if n == 0:
+        return 1
+    if n == 2:
+        return 3
+    else:
+        return 4 * kolvo_sp_ul_pl(n - 2) - kolvo_sp_ul_pl(n - 4)
+
+
+print("Количество способов =", kolvo_sp_ul_pl(50))
