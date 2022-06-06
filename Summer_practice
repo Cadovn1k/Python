@@ -1,0 +1,525 @@
+# %%
+
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+# %% md
+
+# Равномерная сетка
+
+# %%
+
+a = 0  # начало
+b = 2  # конец
+n = 10  # количество разбиений
+h = (b - a) / n  # шаг
+x = np.arange(a, b + 0.1, h)  # функция создает массив с шагом h
+x
+
+
+# %% md
+
+# Табулирование функции ошибок
+
+# %%
+print("ПЕРВОЕ ЗАДАНИЕ")
+def erff(x, eps, maxn):
+    k = np.zeros(len(x))  # массив для количества слагаемых в ряде
+    y = np.zeros(len(x))  # массив для суммы
+    for i in range(0, len(x)):
+        n = 0
+        q = x[i]
+        y[i] = q
+        while (abs(q) > eps) and (n < maxn):
+            q = (-x[i] ** 2 * (2 * n + 1)) / (2 * n ** 2 + 5 * n + 3) * q;  # вычисляем по формуле ряд тейлора
+            y[i] += q  # накапливаем сумму
+            n += 1
+            k[i] = n  # количество слагаемых
+    y *= 2 / math.sqrt(math.pi)  # умножаем на коэффициент перед рядом тейлора
+    return y, k
+
+
+# %%
+
+y, k = erff(x, 0.000001, 20)  # вычисляем функцию ошибок
+print(' x          erff        k')
+print('{}      {}           {}'.format(x[0], y[0], k[0]))
+for i in range(1, len(x)):
+    print('{}      {}      {}'.format(round(x[i], 2), round(y[i], 6), k[i]))  # просто красивый вывод
+
+# %%
+
+fig = plt.figure()
+plt.plot(x, y)
+plt.grid(True)
+plt.title('Функция ошибок(первое задание)')
+plt.ylabel('y')
+plt.xlabel('x') # просто график
+plt.show()
+
+# %%
+print("\nВТОРОЕ ЗАДАНИЕ")
+a = 0  # начало
+b = 2  # конец
+n = 40  # количество разбиений
+h = (b - a) / n  # шаг
+x2 = np.arange(a, b + 0.1, h)  # функция создает массив с шагом h
+
+
+# %% md
+
+# Интерполяционный полином Ньютона
+
+# %%
+
+def coeff(x, y):
+    n = len(x)  # размер
+    x = np.copy(x)  # копируем один массив в другой
+    a = np.copy(y)  # копируем один массив в другой
+    for i in range(1, n):
+        a[i:n] = (a[i:n] - a[i - 1]) / (x[i:n] - x[i - 1])  # вычисляем i-тый коэффициент
+    return a
+
+
+def newton_polynomial(x, y, xi):
+    a = coeff(x, y)  # вычисляем все коэффициенты для данных ху
+    n = len(x) - 1  # степень полинома
+    p = a[n]
+    for k in range(1, n + 1):
+        p = a[n - k] + (xi - x[n - k]) * p  # вычисляем полином по формуле в точке
+    return p
+
+
+# %%
+
+y2 = [newton_polynomial(x, y, xi) for xi in x2]  # вычисляем полином для данных х2у2
+print(' {}          {}'.format('x2', 'y2'))
+for i in range(1, len(x2)):
+    print('{}      {}'.format(round(x2[i], 2), round(y2[i], 6)))  # просто красивый вывод
+
+# %% md
+
+# Погрешность
+
+# %%
+
+f, k = erff(x2, 0.000001, 20)  # вычисляем функцию ошибок для другого числа узлов
+err = np.zeros(len(x2))  # нулевой массив для ошибок
+for i in range(0, len(x2)):
+    err[i] = abs(f[i] - y2[i])  # вычисляем ошибку
+print(max(err))
+plt.plot(x2, err, 'r.-')
+plt.title('График погрешности(второе задание)')
+plt.ylabel('погрешность')
+plt.xlabel('х')
+plt.show()
+
+# %% md
+
+# Эксперимент: зависимость погрешности от числа узлов
+
+# %%
+
+a = 0
+b = 2
+n = [5, 10, 15, 25, 30, 35, 40, 45, 50]  # массив количества узлов
+# не беру больше узлов, тк после 55 ошибка становится очень большой
+x_exp = np.zeros(len(n))  # нулевой массив для иксов
+h = [(b - a) / n[i] for i in range(0, len(n))]  # вычисляем шаг для каждого количества из n
+maxer = np.zeros(len(n))  # массив максимальных ошибок
+
+for i in range(0, len(n)):
+    x_exp = np.arange(a, b + 0.1, h[i])  # массив иксов с шагом
+    f_exp, k = erff(x_exp, 0.000001, 1001)  # вычисляем функцию ошибок
+    y_exp = [newton_polynomial(x_exp, f_exp, xi) for xi in x]  # вычисляем полином ньютона
+
+    err = np.zeros(len(y_exp))  # массив для ошибок
+    for j in range(0, len(y_exp)):
+        err[j] = abs(y[j] - y_exp[j])  # вычисляем ошибку
+    maxer[i] = max(err)  # максимальная ошибка
+
+fig = plt.figure()
+plt.plot(n, maxer)
+plt.grid(True)
+plt.title('Зависимость максимальной ошибки от числа узлов\n(равномерная сетка)(второе задание)')
+plt.ylabel('Максимальная ошибка')
+plt.xlabel('Количество узлов')
+plt.show()
+
+# %% md
+
+# Чебышевская сетка
+
+# %%
+
+a = 0  # начало
+b = 2  # конец
+n = 10  # количество узлов
+x3 = np.zeros(n)  #
+for i in range(0, n):
+    x3[i] = (b - a) / 2 * (math.cos(math.pi * (2 * i + 1) / (2 * n + 2))) + (
+                a + b) / 2  # вычисляем корни полинома чебышева
+x3 = x3[::-1]  # переворачиваем массив
+x3
+
+# %%
+
+y3, k3 = erff(x3, 0.000001, 20)  # вычисляем функцию ошибок
+print(' x          erff        k')
+print('{}       {}     {}'.format(round(x3[0], 2), round(y3[0], 6), k3[0]))
+for i in range(1, len(x3)):
+    print('{}      {}      {}'.format(round(x3[i], 2), round(y3[i], 6), k3[i]))  # просто красивый вывод
+
+fig = plt.figure()
+plt.plot(x3, y3)  # график
+plt.grid(True)
+plt.title('Функция ошибок(второе задание)')
+plt.ylabel('y')
+plt.xlabel('x')
+plt.show()
+
+# %%
+
+a = 0  # начало
+b = 2  # конец
+n = 10  # количество узлов
+x4 = np.zeros(n)
+for i in range(0, n):
+    x4[i] = (b - a) / 2 * (math.cos(math.pi * (2 * i + 1) / (2 * n + 2))) + (a + b) / 2  # корни полинома чебышева
+x4 = x4[::-1]  # переворачиваем массив
+y4 = [newton_polynomial(x3, y3, xi) for xi in x4]  # вычисляем полином ньютона
+print(' {}          {}'.format('x4', 'y4'))
+for i in range(1, len(x4)):
+    print('{}      {}'.format(round(x4[i], 2), round(y4[i], 6)))  # просто красивый вывод
+
+# %%
+
+f4, k = erff(x4, 0.000001, 30)
+err4 = np.zeros(len(x4))
+for i in range(0, len(x4)):
+    err4[i] = abs(f4[i] - y4[i])
+
+print(max(err4))
+plt.plot(x4, err4, 'r.-')
+plt.title('График погрешности(второе задание)')
+plt.ylabel('погрешность')
+plt.xlabel('х')
+plt.show()
+
+# %%
+
+a = 0
+b = 2
+n = [5, 10, 25, 30, 35, 40, 45, 50, 53]  # массив количества узлов
+
+
+# не беру больше узлов, тк после 53 ошибка становится очень большой
+
+
+def cheb_exp(a, b, n, x, y):
+    x_exp2 = np.zeros(n)  # нулевой массив для иксов
+    maxer2 = np.zeros(n)  # массив максимальных ошибок
+    for j in range(0, n):
+        x_exp2[j] = (b - a) / 2 * (math.cos(math.pi * (2 * j + 1) / (2 * n + 2))) + (a + b) / 2
+    x_exp2 = x_exp2[::-1]
+    f_exp2, k = erff(x_exp2, 0.000001, 1001)  # вычисляем функцию ошибок
+    y_exp2 = [newton_polynomial(x_exp2, f_exp2, xi) for xi in x]  # вычисляем полином ньютона
+
+    err2 = np.zeros(len(y_exp2))  # массив для ошибок
+    for j in range(0, len(y_exp2)):
+        err2[j] = abs(y[j] - y_exp2[j])  # вычисляем ошибку
+    maxer2 = max(err2)  # максимальная ошибка
+    return maxer2
+
+
+err_cheb = np.zeros(len(n))
+for i in range(0, len(n)):
+    err_cheb[i] = cheb_exp(a, b, n[i], x, y)
+
+fig = plt.figure()
+plt.plot(n, err_cheb)
+plt.grid(True)
+plt.title('Зависимость максимальной ошибки от числа узлов\n(чебышевская сетка)(второе задание)')
+plt.ylabel('Максимальная ошибка')
+plt.xlabel('Количество узлов')
+plt.show()
+
+# %%
+
+plt.plot(n, maxer, 'b--', n, err_cheb, 'r-.')
+plt.grid(True)
+plt.title('Сравнение максимальной ошибки на\nравномерной и чебышевской сетке(второе задание)')
+plt.ylabel('Максимальная ошибка')
+plt.xlabel('Количество узлов')
+plt.show()
+
+print("\nТРЕТЬЕ ЗАДАНИЕ")
+# %% md
+
+# Вычисление интеграла и квадратурные формулы
+
+# %%
+
+def func_t(t):
+    return math.e ** (-t ** 2)
+
+
+# %%
+
+def left_rectangles(c, d, N):
+    h_N = (d - c) / N
+    xp = np.zeros(N)
+    sy = np.zeros(N)
+    for i in range(0, N - 1):
+        xp[i] = c + i * h_N
+        sy[i] = func_t(xp[i])
+    sum = np.sum(sy) * h_N * 2 / math.sqrt(math.pi)
+    return sum
+
+
+def lr_iter(z1, z2, eps):
+    k = 2
+    N1 = left_rectangles(z1, z2, k)
+    N2 = left_rectangles(z1, z2, k * 2)
+    while (True):
+        if (abs(N1 - N2) <= eps):
+            return N1, k
+        else:
+            k = k * 2
+            N1 = N2
+            N2 = left_rectangles(z1, z2, k * 2)
+
+
+def lr_result():
+    xp = np.arange(a, b + 0.1, 0.2)
+    epsis = [math.pow(10, -4), math.pow(10, -7)]
+    for eps in epsis:
+        print('E={}'.format(eps))
+        print('Таблица приближенных значений левых прямоугольников')
+        print("%5s%10s%10s%20s" % ("x", "S(x)", "N", "error"))
+        for i in range(0, len(xp)):
+            result, N = lr_iter(xp[0], xp[i], eps)
+            error = abs(y[i] - result)
+            # print('{}      {}      {}      {}'.format(round(xp[i],2), round(result,6),N, round(error,8)))
+            print("%5.2f%10.6f%10d%20.8f" % (round(xp[i], 2), round(result, 6), N, round(error, 8)))
+        print("\n")
+
+
+# %%
+
+lr_result()
+
+
+# %%
+
+def Trapezium(c, d, N):
+    h_N = (d - c) / N
+    xp = [c + i * h_N for i in range(0, N + 1)]
+    sy = [(func_t(xp[i]) + func_t(xp[i - 1])) for i in range(1, N + 1)]
+    sum = h_N * np.sum(sy) / math.sqrt(math.pi)
+    return sum
+
+
+def Trap_iter(z1, z2, eps):
+    k = 2
+    N1 = Trapezium(z1, z2, k)
+    N2 = Trapezium(z1, z2, k * 2)
+    while (True):
+        if (abs(N1 - N2) <= eps):
+            return N1, k
+        else:
+            k = k * 2
+            N1 = N2
+            N2 = Trapezium(z1, z2, k * 2)
+
+
+def Trap_result():
+    xp = np.arange(a, b + 0.1, 0.2)
+    epsis = [math.pow(10, -4), math.pow(10, -7)]
+    for eps in epsis:
+        print('E={}'.format(eps))
+        print('Таблица приближенных значений в формуле трапеции')
+        print("%5s%10s%10s%20s" % ("x", "S(x)", "N", "error"))
+        for i in range(0, len(xp)):
+            result, N = Trap_iter(xp[0], xp[i], eps)
+            error = abs(y[i] - result)
+            # print('{}      {}      {}      {}'.format(round(xp[i],2), round(result,6),N, round(error,8)))
+            print("%5.2f%10.6f%10d%20.5e" % (round(xp[i], 2), round(result, 6), N, round(error, 8)))
+        print("\n")
+
+
+# %%
+
+Trap_result()
+
+
+# %%
+
+def Simps(c, d, N):
+    h_N = (d - c) / N
+    sum = func_t(d) + func_t(c)
+    k = 0
+    for i in range(1, N):
+        k = 2 + 2 * (i % 2)
+        sum += k * func_t(c + i * h_N)
+    sum = sum * (h_N / 3) * 2 / math.sqrt(math.pi)
+    return sum
+
+
+def Simps_iter(z1, z2, eps):
+    k = 2
+    N1 = Simps(z1, z2, k)
+    N2 = Simps(z1, z2, k * 2)
+    while (True):
+        if (abs(N1 - N2) <= eps):
+            return N1, k
+        else:
+            k = k * 2
+            N1 = N2
+            N2 = Simps(z1, z2, k * 2)
+
+
+def Simps_result():
+    xp = np.arange(a, b + 0.1, 0.2)
+    epsis = [math.pow(10, -4), math.pow(10, -7)]
+    for eps in epsis:
+        print('E={}'.format(eps))
+        print('Таблица приближенных значений в формуле Симпсона')
+        print("%5s%10s%10s%20s" % ("x", "S(x)", "N", "error"))
+        for i in range(0, len(xp)):
+            result, N = Simps_iter(xp[0], xp[i], eps)
+            error = abs(y[i] - result)
+            # print('{}      {}      {}      {}'.format(round(xp[i],2), round(result,6),N, round(error,8)))
+            print("%5.2f%10.6f%10d%20.8f" % (round(xp[i], 2), round(result, 6), N, round(error, 8)))
+        print("\n")
+
+
+# %%
+
+Simps_result()
+
+
+# %%
+
+def Gauss(c, d, N):
+    h_N = (d - c) / N
+    xp = [c + i * h_N for i in range(0, N + 1)]
+    sy = [func_t(xp[i - 1] + (h_N / 2) * (1 - 1 / 3 ** 0.5)) + func_t(xp[i - 1] + (h_N / 2) * (1 + 1 / 3 ** 0.5)) for i
+          in range(1, N + 1)]
+    sum = (h_N / 2) * np.sum(sy) * 2 / math.sqrt(math.pi)
+    return sum
+
+
+def Gauss_iter(z1, z2, eps):
+    k = 2
+    N1 = Gauss(z1, z2, k)
+    N2 = Gauss(z1, z2, k * 2)
+    while (True):
+        if (abs(N1 - N2) <= eps):
+            return N1, k
+        else:
+            k = k * 2
+            N1 = N2
+            N2 = Gauss(z1, z2, k * 2)
+
+
+def Gauss_result():
+    xp = np.arange(a, b + 0.1, 0.2)
+    epsis = [math.pow(10, -4), math.pow(10, -7)]
+    for eps in epsis:
+        print('E={}'.format(eps))
+        print('Таблица приближенных значений в формуле Гаусса')
+        print("%5s%10s%10s%20s" % ("x", "S(x)", "N", "error"))
+        for i in range(0, len(xp)):
+            result, N = Gauss_iter(xp[0], xp[i], eps)
+            error = abs(y[i] - result)
+            # print('{}      {}      {}      {}'.format(round(xp[i],2), round(result,6),N, round(error,8)))
+            print("%5.2f%10.6f%10d%20.8f" % (round(xp[i], 2), round(result, 6), N, round(error, 8)))
+        print("\n")
+
+
+# %%
+
+Gauss_result()  # надо нарисовать еще одну таблицу
+
+print("\nЧЕТВЕРТОЕ ЗАДАНИЕ")
+# %% md
+
+# Обратная функция
+
+# %%
+
+
+# %%
+
+def erff2(x, eps, maxn):  # массив для суммы
+    n = 0
+    q = x
+    y = q
+    while (abs(q) > eps) and (n < maxn):
+        q = (-x ** 2 * (2 * n + 1)) / (2 * n ** 2 + 5 * n + 3) * q;  # вычисляем по формуле ряд тейлора
+        y += q  # накапливаем сумму
+        n += 1
+        k = n  # количество слагаемых
+    y *= 2 / math.sqrt(math.pi)  # умножаем на коэффициент перед рядом тейлора
+    return y
+
+
+def diff(x):
+    di = 2 / math.sqrt(math.pi) * math.e ** (-x ** 2)
+    return di
+
+
+def kasnewt(x0, eps, kmax, j):
+    x = x0
+    x_prev = x - (erff2(x, eps, kmax) - F(0, 2, j, 10)) / diff(x)
+    i = 1
+    while abs(x - x_prev) >= eps and i < kmax:
+        x = x - (erff2(x, eps, kmax) - F(0, 2, j, 10)) / diff(x)
+        x_prev = x
+        i += 1
+    return x
+
+
+def F(x0, xn, j, n):
+    fF = erff2(x0, 0.00001, 30) + j * (erff2(xn, 0.00001, 30) - erff2(x0, 0.00001, 30)) / n
+    return fF
+
+
+# %%
+
+a = 0  # начало
+b = 2  # конец
+n = 10  # количество разбиений
+h = (b - a) / n  # шаг
+x6 = np.arange(a, b + 0.1, h)
+zi = np.zeros(len(x))
+for i in range(len(x)):
+    zi[i] = kasnewt(x6[i], 0.00001, 30, i)
+
+Ff = np.zeros(len(x))
+for i in range(len(x)):
+    Ff[i] = F(0, 2, i, 10)
+
+# %%
+
+print("%5s%10s" % ("Zi", "Fi"))
+for i in range(len(x)):
+    print("%5.5f%10.6f" % (zi[i], Ff[i]))
+    # print("{}       {}".format(zi[i], Ff[i]))
+
+# %%
+
+y7, k = erff(zi, 0.000001, 20)
+for i in range(len(y7)):
+    print(y7[i] * Ff[i])
+
+# %%
+
+plt.plot(x, y, 'b--', x, Ff, 'r-.')
+plt.grid(True)
+plt.title('V(x) и V-1(x)(четвёртое задание)')
+plt.show()
+
+# %%
