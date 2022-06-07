@@ -165,47 +165,47 @@ x3
 
 # %%
 
-y3, k3 = erff(x3, 0.000001, 20)  # вычисляем функцию ошибок
-print(' x          erff        k')
-print('{}       {}     {}'.format(round(x3[0], 2), round(y3[0], 6), k3[0]))
-for i in range(1, len(x3)):
-    print('{}      {}      {}'.format(round(x3[i], 2), round(y3[i], 6), k3[i]))  # просто красивый вывод
-
-fig = plt.figure()
-plt.plot(x3, y3)  # график
-plt.grid(True)
-plt.title('Функция ошибок(второе задание)')
-plt.ylabel('y')
-plt.xlabel('x')
-plt.show()
-
-# %%
-
-a = 0  # начало
-b = 2  # конец
-n = 10  # количество узлов
-x4 = np.zeros(n)
-for i in range(0, n):
-    x4[i] = (b - a) / 2 * (math.cos(math.pi * (2 * i + 1) / (2 * n + 2))) + (a + b) / 2  # корни полинома чебышева
-x4 = x4[::-1]  # переворачиваем массив
-y4 = [newton_polynomial(x3, y3, xi) for xi in x4]  # вычисляем полином ньютона
-print(' {}          {}'.format('x4', 'y4'))
-for i in range(1, len(x4)):
-    print('{}      {}'.format(round(x4[i], 2), round(y4[i], 6)))  # просто красивый вывод
-
-# %%
-
-f4, k = erff(x4, 0.000001, 30)
-err4 = np.zeros(len(x4))
-for i in range(0, len(x4)):
-    err4[i] = abs(f4[i] - y4[i])
-
-print(max(err4))
-plt.plot(x4, err4, 'r.-')
-plt.title('График погрешности(второе задание)')
-plt.ylabel('погрешность')
-plt.xlabel('х')
-plt.show()
+# y3, k3 = erff(x3, 0.000001, 20)  # вычисляем функцию ошибок
+# print(' x          erff        k')
+# print('{}       {}     {}'.format(round(x3[0], 2), round(y3[0], 6), k3[0]))
+# for i in range(1, len(x3)):
+#     print('{}      {}      {}'.format(round(x3[i], 2), round(y3[i], 6), k3[i]))  # просто красивый вывод
+#
+# fig = plt.figure()
+# plt.plot(x3, y3)  # график
+# plt.grid(True)
+# plt.title('Функция ошибок(второе задание)')
+# plt.ylabel('y')
+# plt.xlabel('x')
+# plt.show()
+#
+# # %%
+#
+# a = 0  # начало
+# b = 2  # конец
+# n = 10  # количество узлов
+# x4 = np.zeros(n)
+# for i in range(0, n):
+#     x4[i] = (b - a) / 2 * (math.cos(math.pi * (2 * i + 1) / (2 * n + 2))) + (a + b) / 2  # корни полинома чебышева
+# x4 = x4[::-1]  # переворачиваем массив
+# y4 = [newton_polynomial(x3, y3, xi) for xi in x4]  # вычисляем полином ньютона
+# print(' {}          {}'.format('x4', 'y4'))
+# for i in range(1, len(x4)):
+#     print('{}      {}'.format(round(x4[i], 2), round(y4[i], 6)))  # просто красивый вывод
+#
+# # %%
+#
+# f4, k = erff(x4, 0.000001, 30)
+# err4 = np.zeros(len(x4))
+# for i in range(0, len(x4)):
+#     err4[i] = abs(f4[i] - y4[i])
+#
+# print(max(err4))
+# plt.plot(x4, err4, 'r.-')
+# plt.title('График погрешности(второе задание)')
+# plt.ylabel('погрешность')
+# plt.xlabel('х')
+# plt.show()
 
 # %%
 
@@ -445,14 +445,14 @@ Gauss_result()  # надо нарисовать еще одну таблицу
 
 # print("\nЧЕТВЕРТОЕ ЗАДАНИЕ")
 # # %% md
-# 
+#
 # # Обратная функция
-# 
+#
 # # %%
-# 
-# 
+#
+#
 # # %%
-# 
+#
 # def erff2(x, eps, maxn):  # массив для суммы
 #     n = 0
 #     q = x
@@ -464,13 +464,13 @@ Gauss_result()  # надо нарисовать еще одну таблицу
 #         k = n  # количество слагаемых
 #     y *= 2 / math.sqrt(math.pi)  # умножаем на коэффициент перед рядом тейлора
 #     return y
-# 
-# 
+#
+#
 # def diff(x):
 #     di = 2 / math.sqrt(math.pi) * math.e ** (-x ** 2)
 #     return di
-# 
-# 
+#
+#
 # def kasnewt(x0, eps, kmax, j):
 #     x = x0
 #     x_prev = x - (erff2(x, eps, kmax) - F(0, 2, j, 10)) / diff(x)
@@ -480,15 +480,15 @@ Gauss_result()  # надо нарисовать еще одну таблицу
 #         x_prev = x
 #         i += 1
 #     return x
-# 
-# 
+#
+#
 # def F(x0, xn, j, n):
 #     fF = erff2(x0, 0.00001, 30) + j * (erff2(xn, 0.00001, 30) - erff2(x0, 0.00001, 30)) / n
 #     return fF
-# 
-# 
+#
+#
 # # %%
-# 
+#
 # a = 0  # начало
 # b = 2  # конец
 # n = 10  # количество разбиений
@@ -497,29 +497,29 @@ Gauss_result()  # надо нарисовать еще одну таблицу
 # zi = np.zeros(len(x))
 # for i in range(len(x)):
 #     zi[i] = kasnewt(x6[i], 0.00001, 30, i)
-# 
+#
 # Ff = np.zeros(len(x))
 # for i in range(len(x)):
 #     Ff[i] = F(0, 2, i, 10)
-# 
+#
 # # %%
-# 
+#
 # print("%5s%10s" % ("Zi", "Fi"))
 # for i in range(len(x)):
 #     print("%5.5f%10.6f" % (zi[i], Ff[i]))
 #     # print("{}       {}".format(zi[i], Ff[i]))
-# 
+#
 # # %%
-# 
+#
 # y7, k = erff(zi, 0.000001, 20)
 # for i in range(len(y7)):
 #     print(y7[i] * Ff[i])
-# 
+#
 # # %%
-# 
+#
 # plt.plot(x, y, 'b--', x, Ff, 'r-.')
 # plt.grid(True)
 # plt.title('V(x) и V-1(x)(четвёртое задание)')
 # plt.show()
-# 
+#
 # # %%
