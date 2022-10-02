@@ -1,0 +1,142 @@
+from sympy import *
+import numpy as np
+from numpy import array, zeros
+
+n = 40
+h = 1 / n
+e = h**3
+#alpha = 3
+#betta = 2
+#gamma = 2
+k = 1
+#A = [0] * (n - 1)
+A = zeros([39, 39])
+#b = [0] * (n - 1)
+b = zeros([39])
+x = [0] * (n - 1)
+#for i in range(n - 1) :
+#    A[i] = [0] * (n - 1)
+#for i in range(n - 1):
+#    for j in range(n - 1):
+#        A[i][j] = 0
+for i in range(n - 1):
+    if i == 0 :
+        A[i][i] = (i + 1) * h
+        A[i][i + 1] = (i + 2) * h
+    if i == 38 :
+        A[i][i - 1] = i * h
+        A[i][i] = (i + 1) * h
+    else :
+        A[i][i - 1] = (i) * h
+        A[i][i] = (i + 1) * h
+        A[i][i + 1] = (i + 2) * h
+print('Матрица А : ')
+for i in range(len(A)):
+    for j in range(len(A[i])):
+        print(A[i][j], end=' ')
+    print()
+x = Symbol('x')
+u = (x**3) * (1 - x)**2
+p = 1 + x**2
+g = x + 1
+p_deru = p * u.diff(x)
+f = -p_deru.diff(x) + (g * u)
+print('Наша функция : ')
+print(f)
+for i in range(n - 1):
+    b[i] = f.subs(x,(i + 1) * h)
+print('Вектор b : ')
+for i in range(len(b)):
+    print(b[i], end=' ')
+
+
+# Вызываем Якоби (mx, mr, n = 100, c = 0,001) пример
+#mx = [[8, -3, 2], [4, 11, -1], [6, 3, 12]]
+#mr = [[20], [33], [36]]
+#print(Jacobi(mx, mr, 100, 0.00001))
+
+# Метод Якоби
+def Jacobi(mx, mr, n = 100, c = 0.0001):
+    x = []
+    for i in range(len(mr)):
+        x.append([0])
+        count = 0  # Подсчитать количество итераций
+    while count < n:
+        nx = []  # Сохранить набор значений после одной итерации
+        for i in range(len(x)):
+            nxi = mr[i]
+            for j in range(len(mx[i])):
+                if j != i :
+                    nxi = nxi + (-mx[i][j]) * x[j][0]
+            nxi = nxi / mx[i][i]
+            nx.append([nxi])  # Итеративно вычислил следующее значение xi
+        lc = []  # хранить множество ошибок между результатами двух итераций
+        for i in range(len(x)):
+            lc.append(abs(x[i][0] - nx[i][0]))
+        if max(lc) < c:
+            return nx  # Когда ошибка соответствует требованиям, вернуть результат расчета
+        x = nx
+        count = count + 1
+        return False  # Если заданный результат итерации все еще не удовлетворен, уравнение не имеет решения
+
+
+def gauss_seidel(A, b, tolerance=1e-10, max_iterations=100):
+    x = np.zeros_like(b, dtype=np.double)
+    # Iterate
+    for k in range(max_iterations):
+        x_old = x.copy()
+        # Loop over rows
+        for i in range(len(A)):
+            x[i] = (b[i] - np.dot(A[i, :i], x[:i]) - np.dot(A[i, (i + 1):], x_old[(i + 1):])) / A[i, i]
+        # Stop condition
+        if np.linalg.norm(x - x_old, ord=np.inf) / np.linalg.norm(x, ord=np.inf) < tolerance:
+            break
+    return x
+
+# Метод релаксации
+def SOR(A, b, x0, tol, max_iter, w = 1.5):
+    #tol допустимая ошибка (точность решения)
+    #max_iter # максимум итераций, чтобы наша программа не уходила в бесконечный цикл при уравнении, которое нельзя решить методом релаксации
+    #w = 1.5  # Релаксирующий фактор
+    n = b.shape  # кол-во элементов==кол-во уравнений в СЛАУ;
+    x = x0  # временный массив
+    for step in range(1, max_iter):  # итерации
+        for i in range(n[0]):
+            new_values_sum = np.dot(A[i, :i], x[:i])
+            old_values_sum = np.dot(A[i, i + 1:], x0[i + 1:])
+            x[i] = (b[i] - (old_values_sum + new_values_sum)) / A[i, i]
+            x[i] = np.dot(x[i], w) + np.dot(x0[i], (1 - w))
+        if (np.linalg.norm(np.dot(A, x) - b) < tol):
+            print(step)  # номер итерации при нарушении точности
+            break
+        x0 = x
+    print("X = {}".format(x))  # наши х
+    print("Количество итераций : {}".format(step))  # кол-во итераций
+    return x
+
+# Метод наискорейшего спуска
+def gradient_descent(max_iterations, threshold, w_init, obj_func, grad_func, extra_param=[], learning_rate=0.05, momentum=0.8):
+    w = w_init
+    w_history = w
+    f_history = obj_func(w, extra_param)
+    delta_w = np.zeros(w.shape)
+    i = 0
+    diff = 1.0e10
+    while threshold:
+        delta_w = -learning_rate * grad_func(w, extra_param) + momentum * delta_w
+        w = w + delta_w
+        # store the history of w and f
+        w_history = np.vstack((w_history, w))
+        f_history = np.vstack((f_history, obj_func(w, extra_param)))
+        # update iteration number and diff between successive values
+        # of objective function
+        i += 1
+        diff = np.absolute(f_history[-1] - f_history[-2])
+    return w_history, f_history
+
+
+
+print()
+#print(Jacobi(A,b, n, e))
+print(gauss_seidel(A,b,e,n))
+#print(SOR(A,b,x,e,100))
