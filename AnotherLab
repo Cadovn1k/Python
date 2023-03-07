@@ -1,16 +1,17 @@
+import numpy as np
 
 n = 10
 m = 5
-arr1 = [0] * n
-arr2 = [0] * m
+arr1 = np.zeros(n)
+arr2 = np.zeros(m)
 h = 1 / n
 tetta = 1 / m
 kappa = 1/2
 sigma = 1 / n
-y = [0 * n] * m
-y_s = [0 * n] * m
-for i in (0, m - 1):
-    for j in (0, n):
+y = np.zeros((m, n))
+y_s = np.zeros((m, n))
+for i in range(0, m - 1):
+    for j in range(1, n - 1):
         y[i + 1][j] = y[i][j] + (tetta / (h * h)) * kappa * y[i][j - 1] * y_s[i][j] - (tetta / (h * h)) * (y_s[i][j] + y_s[i][j + 1]) * y[i][j] * kappa
         + (tetta / (h * h)) * kappa * y_s[i][j + 1] * y[i][j + 1]
 
