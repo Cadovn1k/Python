@@ -1,18 +1,48 @@
 import numpy as np
+import matplotlib.pyplot as pl
 
-n = 10
-m = 5
-arr1 = np.zeros(n)
-arr2 = np.zeros(m)
-h = 1 / n
-tetta = 1 / m
-kappa = 1/2
-sigma = 1 / n
-y = np.zeros((m, n))
-y_s = np.zeros((m, n))
-for i in range(0, m - 1):
-    for j in range(1, n - 1):
-        y[i + 1][j] = y[i][j] + (tetta / (h * h)) * kappa * y[i][j - 1] * y_s[i][j] - (tetta / (h * h)) * (y_s[i][j] + y_s[i][j + 1]) * y[i][j] * kappa
-        + (tetta / (h * h)) * kappa * y_s[i][j + 1] * y[i][j + 1]
+n = 2/7
+u0 = 2.4
+sigma = 1/n
+kappa0 = [1/2, 1, 2]
+k = 10
+h = 1/k
+tao = 5*h**4
+m = int(1/tao)
+x = [i * h for i in range(k+1)]
+# print(x)
+t = [j * tao for j in range(m)]
+# print(len(t))
 
-print(y)
+
+y = np.zeros(k+1)
+yv = np.zeros(k+1)
+yk = np.zeros(k+1)
+D = ((kappa0[0] * (u0**sigma))/sigma)**(1/2)
+
+
+
+for i in np.arange(0,len(t)):
+    yv[0]= u0 * (t[i]**n)
+    for j in np.arange(1,len(x)-1):
+          yv[j]=y[j]+(tao/h**2)*kappa0[0]*((y[j]**sigma)*y[j+1]-y[j]*((y[j-1]**sigma)+(y[j]**sigma))+y[j-1]*(y[j-1]**sigma))
+           # yv[j]=y[j]+(tao/h**2)*kappa0[0]*((y[j]**sigma)*y[j-1]-y[j]*((y[j]**sigma)+(y[j+1]**sigma))+y[j+1]*(y[j+1]**sigma))
+    y=np.copy(yv)
+    print(y)
+
+
+print("--------")
+for i in np.arange(0,len(t)):
+    for j in np.arange(0,len(x)-1):
+        if(x[j]<=D*t[i]):
+          yk[j] = (u0 / (D ** (1 / sigma))) * (D * t[i] - x[j]) ** (1 / sigma)
+          # yk[j] = (sigma*D*(1/kappa0[1])*(D*t[i]-x[j]))**(1/sigma)
+        else:
+            if (x[j]>D*t[i]):
+                yk[j] = 0
+
+    print(yk)
+
+#
+pl.plot(x,yk,x,yv)
+pl.show()
